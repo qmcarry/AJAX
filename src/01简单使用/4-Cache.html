@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+        #result {
+            width: 200px;
+            height: 100px;
+            border: solid 1px;
+        }
+    </style>
+</head>
+
+<body>
+    <button>发送请求</button>
+    <button>取消请求</button>
+    <div id="result"></div>
+    <script>
+        const btn = document.getElementsByTagName('button')[0];
+        const cancel = document.getElementsByTagName('button')[1];
+        const result = document.getElementById("result");
+        let xhr = null;
+        let isSending = false; //是否正在发送AJAX请求
+        btn.addEventListener("click", function () {
+            console.log('test');
+            if (isSending) xhr.abort(); //如果正在发送，则取消该请求，创建一个新的请求
+            //1.创建对象
+            xhr = new XMLHttpRequest();
+            //标识变量
+            isSending = true
+
+            //2.初始化，设置请求方法和url
+            // xhr.open("GET", "http://127.0.0.1:8000/browser?t=" + Date.now());
+            xhr.open("GET", "http://127.0.0.1:8000/browser");
+            //设置请求头
+            xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+            //超时设置2s
+            // xhr.timeout = 2000;
+            //超时回调
+            xhr.ontimeout = function () {
+                alert('网络异常，请稍后再试')
+            }
+            //网络异常回调
+            xhr.onerror = function () {
+                alert('网络出现了错误')
+            }
+            //3.发送
+            xhr.send('a=100&b=200&c=300');
+            //4.事件绑定 处理服务端返回的结果
+            //on when 当...时候
+            //readystate是xhr对象中的属性，表示0 1 2 3 4
+            //change 改变的时候触发
+            xhr.onreadystatechange = function () {
+                //判断
+                if (xhr.readyState === 4) {
+                    //修改标识变量
+                    isSending = false;
+                    //判断响应状态码 200 404 403 401 500
+                    //2xx 成功
+                    if (xhr.status >= 200 && xhr.status < 300) {
+                        //处理结果 行 头 空行 体 //1.响应行 console.log(xhr.status); //状态码
+                        //设置result的文本
+                        result.innerHTML = xhr.response;
+                    } else {}
+                }
+            };
+        });
+        cancel.onclick = function () {
+            xhr.abort();
+            console.log(1);
+        }
+    </script>
+</body>
+
+</html>
